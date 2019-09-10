@@ -104,11 +104,7 @@ export class VuexPersistence<S> implements PersistOptions<S> {
     }
 
     this.asyncStorage = options.asyncStorage || false
-    const storageConstructor =
-      this.storage &&
-        this.storage.constructor &&
-        this.storage.constructor.name &&
-        this.storage.constructor.name.toLowerCase()
+    const storageConstructor = this.storageConstructorName(this.storage)
     this.asyncStorage = this.asyncStorage || storageConstructor === 'localforage'
 
     if (this.asyncStorage) {
@@ -144,11 +140,7 @@ export class VuexPersistence<S> implements PersistOptions<S> {
         (options.saveState != null)
           ? options.saveState
           : ((key: string, state: {}, storage: AsyncStorage) => {
-              const isLocalforage =
-                storage &&
-                  storage.constructor &&
-                  storage.constructor.name &&
-                  storage.constructor.name.toLowerCase() === 'localforage'
+              const isLocalforage = this.storageConstructorName(storage) === 'localforage'
               return (storage).setItem(
                 key, // Second argument is state _object_ if localforage, stringified otherwise
                 isLocalforage
@@ -261,6 +253,13 @@ export class VuexPersistence<S> implements PersistOptions<S> {
         this.subscribed = true
       }
     }
+  }
+
+    /**
+   * Returns the storage constructor name
+   */
+  public storageConstructorName(storage: Storage | AsyncStorage) {
+    if (storage && storage.constructor && storage.constructor.name) { return storage.constructor.name.toLowerCase() } else { return "" }
   }
 
   /**
